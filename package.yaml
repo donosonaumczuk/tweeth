@@ -25,6 +25,7 @@ dependencies:
 - mtl
 - network
 - websockets
+- wuss
 
 library:
   source-dirs: src
