@@ -11,7 +11,7 @@ import           Control.Monad       (forever, unless)
 import           Control.Monad.Trans (liftIO)
 import           Network.Socket      (withSocketsDo)
 import           Data.Text           (Text)
-import           Wuss
+import           Wuss                (runSecureClient)
 import qualified Data.Text           as T
 import qualified Data.Text.IO        as T
 import qualified Network.WebSockets  as WS
@@ -19,25 +19,30 @@ import qualified Network.WebSockets  as WS
 
 --------------------------------------------------------------------------------
 app :: WS.ClientApp ()
-app conn = do
+app connection = do
     putStrLn "Connected!"
 
+    let putWsIntoStdout = do
+            receivedData <- WS.receiveData connection
+            liftIO $ T.putStrLn receivedData
+
     -- Fork a thread that writes WS data to stdout
-    _ <- forkIO $ forever $ do
-        msg <- WS.receiveData conn
-        liftIO $ T.putStrLn msg
+    threadId <- forkIO $ forever $ do putWsIntoStdout
 
     -- Read from stdin and write to WS
-    let loop = do
+    let putStdinIntoWs = do
             line <- T.getLine
-            unless (T.null line) $ WS.sendTextData conn line >> loop
+            unless (T.length line == 0) $ WS.sendTextData connection line >> putStdinIntoWs
 
-    loop
-    WS.sendClose conn ("Bye!" :: Text)
+    let printThreadId = putStrLn ("ThreadId = " ++ show threadId)
+
+    putStdinIntoWs
+    printThreadId
+    WS.sendClose connection ("Bye!" :: Text)
 
 
 --------------------------------------------------------------------------------
 main :: IO ()
 main = withSocketsDo $ WS.runClient "echo.websocket.org" 80 "/" app
--- main = withSocketsDo $ runSecureClient "mainnet.infura.io" 443 "/ws/v3/YOUR-PROJECT-ID" app
+--main = withSocketsDo $ runSecureClient "mainnet.infura.io" 443 "/ws/v3/YOUR-PROJECT-ID" app
 -- {"jsonrpc":"2.0", "id": 2, "method": "eth_subscribe", "params": ["logs", {"address": "0x6b175474e89094c44da98b954eedeac495271d0f"}]}
