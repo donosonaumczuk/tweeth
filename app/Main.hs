@@ -1,36 +1,30 @@
---------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
+
 module Main
     ( main
     ) where
 
-
---------------------------------------------------------------------------------
 import           Control.Concurrent  (forkIO)
 import           Control.Monad       (forever, unless)
 import           Control.Monad.Trans (liftIO)
-import           Network.Socket      (withSocketsDo)
 import           Data.Text           (Text)
-import           Wuss                (runSecureClient)
+import           Network.Socket      (withSocketsDo)
 import           System.Environment  (getEnv)
+import           Wuss                (runSecureClient)
 import qualified Data.Text           as T
 import qualified Data.Text.IO        as T
 import qualified Network.WebSockets  as WS
 
-
---------------------------------------------------------------------------------
 app :: WS.ClientApp ()
 app connection = do
-    putStrLn "Connected!"
+    putStrLn "Connected to Infura Websocket!"
 
     let putWsIntoStdout = do
             receivedData <- WS.receiveData connection
             liftIO $ T.putStrLn receivedData
 
-    -- Fork a thread that writes WS data to stdout
     threadId <- forkIO $ forever $ do putWsIntoStdout
 
-    -- Read from stdin and write to WS
     let putStdinIntoWs = do
             line <- T.getLine
             unless (T.length line == 0) $ WS.sendTextData connection line >> putStdinIntoWs
@@ -39,10 +33,8 @@ app connection = do
 
     putStdinIntoWs
     printThreadId
-    WS.sendClose connection ("Bye!" :: Text)
+    WS.sendClose connection ("Connection closed!" :: Text)
 
-
---------------------------------------------------------------------------------
 main :: IO ()
 main = do
   infuraProjectId <- getEnv "TWEETH_INFURA_PROJECT_ID"
