@@ -12,6 +12,7 @@ import           Control.Monad.Trans (liftIO)
 import           Network.Socket      (withSocketsDo)
 import           Data.Text           (Text)
 import           Wuss                (runSecureClient)
+import           System.Environment  (getEnv)
 import qualified Data.Text           as T
 import qualified Data.Text.IO        as T
 import qualified Network.WebSockets  as WS
@@ -43,6 +44,9 @@ app connection = do
 
 --------------------------------------------------------------------------------
 main :: IO ()
-main = withSocketsDo $ WS.runClient "echo.websocket.org" 80 "/" app
---main = withSocketsDo $ runSecureClient "mainnet.infura.io" 443 "/ws/v3/YOUR-PROJECT-ID" app
--- {"jsonrpc":"2.0", "id": 2, "method": "eth_subscribe", "params": ["logs", {"address": "0x6b175474e89094c44da98b954eedeac495271d0f"}]}
+main = do
+  infuraProjectId <- getEnv "TWEETH_INFURA_PROJECT_ID"
+  let wsPort = 443
+  let wsInfuraUrl = "mainnet.infura.io"
+  let wsInfuraPath = "/ws/v3/" ++ infuraProjectId
+  withSocketsDo $ runSecureClient wsInfuraUrl wsPort wsInfuraPath app
