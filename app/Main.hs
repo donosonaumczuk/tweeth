@@ -4,6 +4,8 @@ module Main
     ( main
     ) where
 
+import           Web.Twitter.Conduit
+import           TwitterUtils
 import           Control.Concurrent  (forkIO)
 import           Control.Monad       (forever, unless)
 import           Control.Monad.Trans (liftIO)
@@ -19,21 +21,33 @@ app :: WS.ClientApp ()
 app connection = do
     putStrLn "Connected to Infura Websocket!"
 
-    let putWsIntoStdout = do
-            receivedData <- WS.receiveData connection
-            liftIO $ T.putStrLn receivedData
+    let tweetWsData = do
+            wsReceivedData <- WS.receiveData connection
+            putStrLn "\n\n--------------------"
+            liftIO $ T.putStrLn wsReceivedData
+            tweet wsReceivedData
 
-    threadId <- forkIO $ forever $ do putWsIntoStdout
+    threadId <- forkIO $ forever $ do tweetWsData
 
     let putStdinIntoWs = do
             line <- T.getLine
-            unless (T.length line == 0) $ WS.sendTextData connection line >> putStdinIntoWs
+            unless (line == "close") $ WS.sendTextData connection line >> putStdinIntoWs
 
     let printThreadId = putStrLn ("ThreadId = " ++ show threadId)
 
     putStdinIntoWs
     printThreadId
     WS.sendClose connection ("Connection closed!" :: Text)
+    
+tweet :: Text -> IO ()
+tweet status = do
+      let maxTweetChars = 280
+      let limitedStatus = T.take maxTweetChars status
+      T.putStrLn $ "\n\nTweet to post: " <> limitedStatus
+      twInfo <- getTWInfoFromEnv
+      manager <- newManager tlsManagerSettings
+      response <- call twInfo manager $ statusesUpdate limitedStatus
+      putStrLn ("\n\nTwitter API Response: " ++ show response)
 
 main :: IO ()
 main = do
