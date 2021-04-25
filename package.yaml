@@ -26,6 +26,9 @@ dependencies:
 - network
 - websockets
 - wuss
+- twitter-types
+- twitter-types-lens
+- twitter-conduit
 
 library:
   source-dirs: src

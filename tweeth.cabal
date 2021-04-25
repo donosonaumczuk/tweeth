@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a9e249873648438325039b0b99e37f8aeac426cc509b1738bdfbcc761676542c
+-- hash: 517de7cd8538e1a66d10838f8cf1c86482e91b5f561d6fca844c457f4b2ac65d
 
 name:           tweeth
 version:        0.1.0.0
@@ -37,6 +37,9 @@ library
     , mtl
     , network
     , text
+    , twitter-conduit
+    , twitter-types
+    , twitter-types-lens
     , websockets
     , wuss
   default-language: Haskell2010
@@ -54,6 +57,9 @@ executable tweeth-exe
     , network
     , text
     , tweeth
+    , twitter-conduit
+    , twitter-types
+    , twitter-types-lens
     , websockets
     , wuss
   default-language: Haskell2010
@@ -72,6 +78,9 @@ test-suite tweeth-test
     , network
     , text
     , tweeth
+    , twitter-conduit
+    , twitter-types
+    , twitter-types-lens
     , websockets
     , wuss
   default-language: Haskell2010
