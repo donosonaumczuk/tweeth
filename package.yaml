@@ -21,14 +21,20 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- text
+- bytestring
+- case-insensitive
+- containers
+- http-conduit
+- lens
 - mtl
 - network
-- websockets
-- wuss
+- network-uri
+- text
+- twitter-conduit
 - twitter-types
 - twitter-types-lens
-- twitter-conduit
+- websockets
+- wuss
 
 library:
   source-dirs: src

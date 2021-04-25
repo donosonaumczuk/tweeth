@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 517de7cd8538e1a66d10838f8cf1c86482e91b5f561d6fca844c457f4b2ac65d
+-- hash: f939b148b1694324590b879e02e92bc9779a689d8fbfe257229b2281ab064719
 
 name:           tweeth
 version:        0.1.0.0
@@ -27,15 +27,21 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      TwitterUtils
   other-modules:
       Paths_tweeth
   hs-source-dirs:
       src
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , case-insensitive
+    , containers
+    , http-conduit
+    , lens
     , mtl
     , network
+    , network-uri
     , text
     , twitter-conduit
     , twitter-types
@@ -53,8 +59,14 @@ executable tweeth-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , case-insensitive
+    , containers
+    , http-conduit
+    , lens
     , mtl
     , network
+    , network-uri
     , text
     , tweeth
     , twitter-conduit
@@ -74,8 +86,14 @@ test-suite tweeth-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , case-insensitive
+    , containers
+    , http-conduit
+    , lens
     , mtl
     , network
+    , network-uri
     , text
     , tweeth
     , twitter-conduit
