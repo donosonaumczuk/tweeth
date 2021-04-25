@@ -20,25 +20,29 @@ import qualified Network.WebSockets  as WS
 app :: WS.ClientApp ()
 app connection = do
     putStrLn "Connected to Infura Websocket!"
-
-    let tweetWsData = do
-            wsReceivedData <- WS.receiveData connection
-            putStrLn "\n\n--------------------"
-            liftIO $ T.putStrLn wsReceivedData
-            tweet wsReceivedData
-
-    threadId <- forkIO $ forever $ do tweetWsData
-
-    let putStdinIntoWs = do
-            line <- T.getLine
-            unless (line == "close") $ WS.sendTextData connection line >> putStdinIntoWs
-
-    let printThreadId = putStrLn ("ThreadId = " ++ show threadId)
-
-    putStdinIntoWs
-    printThreadId
+    _ <- forkIO $ forever $ do tweetWsData connection
+    sendEthSubscribeRequest connection
+    loopUnless T.null
     WS.sendClose connection ("Connection closed!" :: Text)
-    
+
+loopUnless :: (Text -> Bool) -> IO ()
+loopUnless loopConditionOverText = do
+          line <- T.getLine
+          unless (loopConditionOverText line) $ loopUnless loopConditionOverText
+
+tweetWsData :: WS.Connection -> IO ()
+tweetWsData connection = do
+        wsReceivedData <- WS.receiveData connection
+        putStrLn "\n\n--------------------"
+        liftIO $ T.putStrLn wsReceivedData
+        tweet wsReceivedData
+
+sendEthSubscribeRequest :: WS.Connection -> IO ()
+sendEthSubscribeRequest connection = do
+        let requestBodyText = T.pack "{\"jsonrpc\":\"2.0\", \"id\": 2, \"method\": \"eth_subscribe\",\
+            \\"params\": [\"logs\", {\"address\": \"0x6b175474e89094c44da98b954eedeac495271d0f\"}]}"
+        WS.sendTextData connection requestBodyText
+
 tweet :: Text -> IO ()
 tweet status = do
       let maxTweetChars = 280
