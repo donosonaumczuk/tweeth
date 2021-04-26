@@ -65,3 +65,8 @@ packages:
 #
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
+
+extra-deps:
+  - 'twitter-types-0.10.1'
+  - 'twitter-types-lens-0.10.1'
+  - 'twitter-conduit-0.5.1'

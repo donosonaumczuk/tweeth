@@ -21,9 +21,18 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- text
+- bytestring
+- case-insensitive
+- containers
+- http-conduit
+- lens
 - mtl
 - network
+- network-uri
+- text
+- twitter-conduit
+- twitter-types
+- twitter-types-lens
 - websockets
 - wuss
 
