@@ -45,7 +45,8 @@ tweetWsData connection = do
 sendEthSubscribeRequest :: WS.Connection -> IO ()
 sendEthSubscribeRequest connection = do
     let requestBodyText = T.pack "{\"jsonrpc\":\"2.0\", \"id\": 2, \"method\": \"eth_subscribe\",\
-        \\"params\": [\"logs\", {\"address\": \"0x6b175474e89094c44da98b954eedeac495271d0f\"}]}"
+        \\"params\": [\"logs\", {\"address\": \"0x6b175474e89094c44da98b954eedeac495271d0f\",\
+        \\"topics\": [\"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef\"]}]}"
     WS.sendTextData connection requestBodyText
 
 decode'' :: FromJSON a => Text -> Maybe a
