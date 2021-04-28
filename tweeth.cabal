@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f939b148b1694324590b879e02e92bc9779a689d8fbfe257229b2281ab064719
+-- hash: 9c0fb14f3de66c0691ee39c05a63f90d38f193fc9a6e2ae9f2f9a27f5bee5aff
 
 name:           tweeth
 version:        0.1.0.0
@@ -27,13 +27,15 @@ source-repository head
 
 library
   exposed-modules:
+      EthTypes
       TwitterUtils
   other-modules:
       Paths_tweeth
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , bytestring
     , case-insensitive
     , containers
@@ -58,7 +60,8 @@ executable tweeth-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , bytestring
     , case-insensitive
     , containers
@@ -85,7 +88,8 @@ test-suite tweeth-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , bytestring
     , case-insensitive
     , containers
