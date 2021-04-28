@@ -73,7 +73,7 @@ getStatusFromEthSub (EthSubscription _ _ (EthParams _ (EthResult _ _ _ txHash _ 
         \[New DAI Transfer]\n\
         \- FROM: " ++ (T.unpack . formatTextTopicAsEthAddress) (txTopics!!1) ++ "\n\
         \- TO: " ++ (T.unpack . formatTextTopicAsEthAddress) (txTopics!!2) ++ "\n\
-        \- AMOUNT: " ++ formatAmount (show (hexStringToInteger (txDataWithout0x txData))) ++ " DAI\n\
+        \- AMOUNT: " ++ formatAmount tokenDecimals (show (hexStringToInteger (txDataWithout0x txData))) ++ " DAI\n\
         \etherscan.io/tx/" ++ T.unpack txHash
     ))
 
@@ -83,9 +83,17 @@ formatTextTopicAsEthAddress text = T.append (T.pack "0x") (T.drop 26 text)
 logStatusIfPresent :: Text -> IO ()
 logStatusIfPresent status = T.putStrLn $ "\n\nTweet to post: " <> status
 
---TODO: Take in account les than 1 DAI values!
-formatAmount :: String -> String
-formatAmount str = (\l s -> take (l - 18) s ++ "," ++ drop (l - 18) s) (length str) str
+tokenDecimals :: Int
+tokenDecimals = 18
+
+formatAmount :: Int -> String -> String
+formatAmount dec str = (\d s -> f d s (length s)) dec (appendZerosToReachDecimals dec str)
+    where f d s l = take (l - d) s ++ "." ++ drop (l - d) s
+
+appendZerosToReachDecimals :: Int -> String -> String
+appendZerosToReachDecimals decimals str = 
+    if length str > decimals then str 
+    else appendZerosToReachDecimals decimals ("0" ++ str)
 
 txDataWithout0x :: Text -> String
 txDataWithout0x txData = drop 2 (T.unpack txData)
@@ -93,11 +101,9 @@ txDataWithout0x txData = drop 2 (T.unpack txData)
 hexStringToInteger :: String -> Integer
 hexStringToInteger [] = 0
 hexStringToInteger str = fromIntegral z + 16 * hexStringToInteger (init str)
-    where z = let y = last str
-            in if isAsciiUpper y
-                then fromEnum y - 55
-            else if isAsciiLower y
-                then fromEnum y - 87
+    where z = let y = last str in
+            if isAsciiUpper y then fromEnum y - 55
+            else if isAsciiLower y then fromEnum y - 87
             else fromEnum y - 48
 
 main :: IO ()
