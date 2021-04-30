@@ -38,8 +38,8 @@ loopUnless loopConditionOverText = do
 tweetWsData :: WS.Connection -> IO ()
 tweetWsData connection = do
     wsReceivedData <- WS.receiveData connection
-    putStrLn "\n\n--------------------"
-    liftIO $ T.putStrLn wsReceivedData
+    putStrLn "\n\n---------------------------------------"
+    liftIO $ putStrLn ("\n\n-- Websocket event:\n" ++ show wsReceivedData)
     maybeTweetResultData (responseToStatus wsReceivedData)
 
 sendEthSubscribeRequest :: WS.Connection -> IO ()
@@ -57,43 +57,42 @@ responseToStatus text = do
     ethSubResponse <- decode'' text :: Maybe EthSubscription
     getStatusFromEthSub ethSubResponse
 
---TODO: This can be written without the cases? Using better the do-notation
 maybeTweetResultData :: Maybe Text -> IO ()
 maybeTweetResultData (Just status) = do
     logStatusIfPresent status
     twInfo <- getTWInfoFromEnv
     manager <- newManager tlsManagerSettings
     response <- call twInfo manager $ statusesUpdate status
-    putStrLn ("\n\nTwitter API Response: " ++ show response)
-maybeTweetResultData Nothing = putStrLn "\n\nNothing in maybeTweetResultData"
+    putStrLn $ "\n\n-- Twitter API Response:\n" ++ show response
+maybeTweetResultData Nothing = putStrLn "\n\n-- Nothing to tweet this time :)"
 
 getStatusFromEthSub :: EthSubscription -> Maybe Text
 getStatusFromEthSub (EthSubscription _ _ (EthParams _ (EthResult _ _ _ txHash _ _ _ txData txTopics))) =
-    return (T.pack ("\
+    return $ T.pack ("\
         \[New DAI Transfer]\n\
         \- FROM: " ++ (T.unpack . formatTextTopicAsEthAddress) (txTopics!!1) ++ "\n\
         \- TO: " ++ (T.unpack . formatTextTopicAsEthAddress) (txTopics!!2) ++ "\n\
         \- AMOUNT: " ++ formatAmount tokenDecimals (show (hexStringToInteger (txDataWithout0x txData))) ++ " DAI\n\
         \etherscan.io/tx/" ++ T.unpack txHash
-    ))
+    )
 
 formatTextTopicAsEthAddress :: Text -> Text
 formatTextTopicAsEthAddress text = T.append (T.pack "0x") (T.drop 26 text)
 
 logStatusIfPresent :: Text -> IO ()
-logStatusIfPresent status = T.putStrLn $ "\n\nTweet to post: " <> status
+logStatusIfPresent status = T.putStrLn $ "\n\n-- Tweet status to post:\n" <> status
 
 tokenDecimals :: Int
 tokenDecimals = 18
 
 formatAmount :: Int -> String -> String
-formatAmount dec str = (\d s -> f d s (length s)) dec (appendZerosToReachDecimals dec str)
-    where f d s l = take (l - d) s ++ "." ++ drop (l - d) s
+formatAmount dec str = (\dec'' str'' -> format dec'' str'' (length str'')) dec (appendZerosToReachDecimals dec str)
+    where format dec'' str'' strLen'' = take (strLen'' - dec'') str'' ++ "." ++ drop (strLen'' - dec'') str''
 
 appendZerosToReachDecimals :: Int -> String -> String
-appendZerosToReachDecimals decimals str = 
-    if length str > decimals then str 
-    else appendZerosToReachDecimals decimals ("0" ++ str)
+appendZerosToReachDecimals dec str =
+    if length str > dec then str
+    else appendZerosToReachDecimals dec ("0" ++ str)
 
 txDataWithout0x :: Text -> String
 txDataWithout0x txData = drop 2 (T.unpack txData)
