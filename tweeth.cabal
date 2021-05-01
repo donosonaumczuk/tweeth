@@ -27,7 +27,10 @@ source-repository head
 
 library
   exposed-modules:
+      DaiEthEvents
+      EthFormatUtils
       EthTypes
+      PohEthEvents
       TwitterUtils
   other-modules:
       Paths_tweeth

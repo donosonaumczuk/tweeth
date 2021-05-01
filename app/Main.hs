@@ -4,19 +4,21 @@ module Main
     ( main
     ) where
 
-import           EthTypes
-import           Web.Twitter.Conduit
-import           TwitterUtils
 import           Control.Concurrent      (forkIO)
 import           Control.Monad           (forever, unless)
 import           Control.Monad.Trans     (liftIO)
-import           Data.Text               (Text)
-import           Network.Socket          (withSocketsDo)
-import           System.Environment      (getEnv)
-import           Wuss                    (runSecureClient)
+import           DaiEthEvents
 import           Data.Aeson              (decode, FromJSON)
-import           Data.Text.Encoding      (encodeUtf8Builder)
 import           Data.ByteString.Builder (toLazyByteString)
+import           Data.Text               (Text)
+import           Data.Text.Encoding      (encodeUtf8Builder)
+import           EthTypes
+import           Network.Socket          (withSocketsDo)
+import           PohEthEvents
+import           System.Environment      (getEnv)
+import           TwitterUtils
+import           Web.Twitter.Conduit
+import           Wuss                    (runSecureClient)
 import qualified Data.Text                as T
 import qualified Data.Text.IO             as T
 import qualified Network.WebSockets       as WS
@@ -59,7 +61,7 @@ responseToStatus :: Text -> Maybe Text
 responseToStatus text = do
     ethSubResponse <- decode'' text :: Maybe EthSubscription
     if matchesSubscription DaiTransfer ethSubResponse then return $ toTweet DaiTransfer ethSubResponse
-    else if matchesSubscription PohRegister ethSubResponse then return $ toTweet PohRegister ethSubResponse
+    else if matchesSubscription PohSubmission ethSubResponse then return $ toTweet PohSubmission ethSubResponse
     else Nothing
 
 maybeTweetResultData :: Maybe Text -> IO ()
