@@ -17,7 +17,6 @@ import           Wuss                    (runSecureClient)
 import           Data.Aeson              (decode, FromJSON)
 import           Data.Text.Encoding      (encodeUtf8Builder)
 import           Data.ByteString.Builder (toLazyByteString)
-import           Data.Char               (isAsciiUpper, isAsciiLower)
 import qualified Data.Text                as T
 import qualified Data.Text.IO             as T
 import qualified Network.WebSockets       as WS
@@ -44,10 +43,14 @@ tweetWsData connection = do
 
 sendEthSubscribeRequest :: WS.Connection -> IO ()
 sendEthSubscribeRequest connection = do
-    let requestBodyText = T.pack "{\"jsonrpc\":\"2.0\", \"id\": 2, \"method\": \"eth_subscribe\",\
+    let daiTransferRequest = T.pack "{\"jsonrpc\":\"2.0\", \"id\": 1, \"method\": \"eth_subscribe\",\
         \\"params\": [\"logs\", {\"address\": \"0x6b175474e89094c44da98b954eedeac495271d0f\",\
         \\"topics\": [\"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef\"]}]}"
-    WS.sendTextData connection requestBodyText
+    let pohSubmissionRequest = T.pack "{\"jsonrpc\":\"2.0\", \"id\": 2, \"method\": \"eth_subscribe\",\
+        \\"params\": [\"logs\", {\"address\": \"0xC5E9dDebb09Cd64DfaCab4011A0D5cEDaf7c9BDb\",\
+        \\"topics\": [\"0x803727a67d35270dc2c090dc4f9cba1f9818a7200e65c2087eca187851fd6b19\"]}]}"
+    WS.sendTextData connection daiTransferRequest
+    WS.sendTextData connection pohSubmissionRequest
 
 decode'' :: FromJSON a => Text -> Maybe a
 decode'' = decode . toLazyByteString . encodeUtf8Builder
@@ -55,7 +58,9 @@ decode'' = decode . toLazyByteString . encodeUtf8Builder
 responseToStatus :: Text -> Maybe Text
 responseToStatus text = do
     ethSubResponse <- decode'' text :: Maybe EthSubscription
-    getStatusFromEthSub ethSubResponse
+    if matchesSubscription DaiTransfer ethSubResponse then return $ toTweet DaiTransfer ethSubResponse
+    else if matchesSubscription PohRegister ethSubResponse then return $ toTweet PohRegister ethSubResponse
+    else Nothing
 
 maybeTweetResultData :: Maybe Text -> IO ()
 maybeTweetResultData (Just status) = do
@@ -66,44 +71,8 @@ maybeTweetResultData (Just status) = do
     putStrLn $ "\n\n-- Twitter API Response:\n" ++ show response
 maybeTweetResultData Nothing = putStrLn "\n\n-- Nothing to tweet this time :)"
 
-getStatusFromEthSub :: EthSubscription -> Maybe Text
-getStatusFromEthSub (EthSubscription _ _ (EthParams _ (EthResult _ _ _ txHash _ _ _ txData txTopics))) =
-    return $ T.pack ("\
-        \[New DAI Transfer]\n\
-        \- FROM: " ++ (T.unpack . formatTextTopicAsEthAddress) (txTopics!!1) ++ "\n\
-        \- TO: " ++ (T.unpack . formatTextTopicAsEthAddress) (txTopics!!2) ++ "\n\
-        \- AMOUNT: " ++ formatAmount tokenDecimals (show (hexStringToInteger (txDataWithout0x txData))) ++ " DAI\n\
-        \etherscan.io/tx/" ++ T.unpack txHash
-    )
-
-formatTextTopicAsEthAddress :: Text -> Text
-formatTextTopicAsEthAddress text = T.append (T.pack "0x") (T.drop 26 text)
-
 logStatusIfPresent :: Text -> IO ()
 logStatusIfPresent status = T.putStrLn $ "\n\n-- Tweet status to post:\n" <> status
-
-tokenDecimals :: Int
-tokenDecimals = 18
-
-formatAmount :: Int -> String -> String
-formatAmount dec str = (\dec'' str'' -> format dec'' str'' (length str'')) dec (appendZerosToReachDecimals dec str)
-    where format dec'' str'' strLen'' = take (strLen'' - dec'') str'' ++ "." ++ drop (strLen'' - dec'') str''
-
-appendZerosToReachDecimals :: Int -> String -> String
-appendZerosToReachDecimals dec str =
-    if length str > dec then str
-    else appendZerosToReachDecimals dec ("0" ++ str)
-
-txDataWithout0x :: Text -> String
-txDataWithout0x txData = drop 2 (T.unpack txData)
-
-hexStringToInteger :: String -> Integer
-hexStringToInteger [] = 0
-hexStringToInteger str = fromIntegral z + 16 * hexStringToInteger (init str)
-    where z = let y = last str in
-            if isAsciiUpper y then fromEnum y - 55
-            else if isAsciiLower y then fromEnum y - 87
-            else fromEnum y - 48
 
 main :: IO ()
 main = do
