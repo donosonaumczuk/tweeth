@@ -6,15 +6,15 @@
 -- https://github.com/himura/twitter-conduit/blob/c26a85c5201f6b0d9745ec5a88c8a21084693ae7/sample/common/Common.hs
 module TwitterUtils where
 
-import Web.Twitter.Conduit
-import Control.Applicative
-import Control.Lens
-import Network.HTTP.Conduit
-import System.Environment
+import           Web.Twitter.Conduit
+import           Control.Applicative
+import           Control.Lens
+import           Network.HTTP.Conduit
+import           System.Environment
 import qualified Data.ByteString.Char8 as S8
-import qualified Data.CaseInsensitive as CI
-import qualified Data.Map as M
-import qualified Network.URI as URI
+import qualified Data.CaseInsensitive  as CI
+import qualified Data.Map              as M
+import qualified Network.URI           as URI
 
 getOAuthTokens :: IO (OAuth, Credential)
 getOAuthTokens = do

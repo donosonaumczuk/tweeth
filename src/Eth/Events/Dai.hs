@@ -2,10 +2,10 @@
 
 module Eth.Events.Dai where
 
+import           Data.Text      (Text)
 import           Eth.Types
-import qualified Data.Text as T
+import qualified Data.Text      as T
 import qualified EthFormatUtils as F
-import Data.Text (Text)
 
 daiDecimals :: Int
 daiDecimals = 18

@@ -2,8 +2,8 @@
 
 module EthFormatUtils where
 
-import           Data.Char (isAsciiUpper, isAsciiLower)
-import           Data.Text (Text)
+import           Data.Char    (isAsciiUpper, isAsciiLower)
+import           Data.Text    (Text)
 import qualified Data.Text as T
 
 addressLengthExceptHexPrefix :: Int
