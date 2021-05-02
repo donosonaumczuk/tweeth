@@ -4,24 +4,27 @@ module Main
     ( main
     ) where
 
-import           Control.Concurrent      (forkIO)
-import           Control.Monad           (forever, unless)
-import           Control.Monad.Trans     (liftIO)
-import           DaiEthEvents
-import           Data.Aeson              (decode, FromJSON)
-import           Data.ByteString.Builder (toLazyByteString)
-import           Data.Text               (Text)
-import           Data.Text.Encoding      (encodeUtf8Builder)
-import           EthTypes
-import           Network.Socket          (withSocketsDo)
-import           PohEthEvents
-import           System.Environment      (getEnv)
+import           Control.Concurrent         (forkIO)
+import           Control.Monad              (forever, unless)
+import           Control.Monad.Trans        (liftIO)
+import           Data.Aeson                 (decode, FromJSON)
+import           Data.ByteString.Builder    (toLazyByteString)
+import           Data.Text                  (Text)
+import           Data.Text.Encoding         (encodeUtf8Builder)
+import           Eth.Types
+import           Network.Socket             (withSocketsDo)
+import           System.Environment         (getEnv)
 import           TwitterUtils
 import           Web.Twitter.Conduit
-import           Wuss                    (runSecureClient)
-import qualified Data.Text                as T
-import qualified Data.Text.IO             as T
-import qualified Network.WebSockets       as WS
+import           Wuss                       (runSecureClient)
+import qualified Data.Text                  as T
+import qualified Data.Text.IO               as T
+import qualified Eth.Events.Dai             as DaiEvents
+import qualified Eth.Events.ProofOfHumanity as PohEvents
+import qualified Network.WebSockets         as WS
+
+events :: [TweetableEthEvent]
+events = [DaiEvents.transfer, PohEvents.addSubmission]
 
 app :: WS.ClientApp ()
 app connection = do
@@ -60,21 +63,26 @@ decode'' = decode . toLazyByteString . encodeUtf8Builder
 responseToStatus :: Text -> Maybe Text
 responseToStatus text = do
     ethSubResponse <- decode'' text :: Maybe EthSubscription
-    if matchesSubscription DaiTransfer ethSubResponse then return $ toTweet DaiTransfer ethSubResponse
-    else if matchesSubscription PohSubmission ethSubResponse then return $ toTweet PohSubmission ethSubResponse
-    else Nothing
+    event <- findEvent events ethSubResponse
+    return $ asTweet event ethSubResponse
+
+findEvent :: [TweetableEthEvent] -> EthSubscription -> Maybe TweetableEthEvent
+findEvent [] _ = Nothing
+findEvent (x:xs) sub = if matches x sub
+                          then return x
+                       else findEvent xs sub
 
 maybeTweetResultData :: Maybe Text -> IO ()
 maybeTweetResultData (Just status) = do
-    logStatusIfPresent status
+    logStatus status
     twInfo <- getTWInfoFromEnv
     manager <- newManager tlsManagerSettings
     response <- call twInfo manager $ statusesUpdate status
     putStrLn $ "\n\n-- Twitter API Response:\n" ++ show response
 maybeTweetResultData Nothing = putStrLn "\n\n-- Nothing to tweet this time :)"
 
-logStatusIfPresent :: Text -> IO ()
-logStatusIfPresent status = T.putStrLn $ "\n\n-- Tweet status to post:\n" <> status
+logStatus :: Text -> IO ()
+logStatus status = T.putStrLn $ "\n\n-- Tweet status to post:\n" <> status
 
 main :: IO ()
 main = do

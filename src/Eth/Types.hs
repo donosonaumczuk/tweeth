@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module EthTypes where
+module Eth.Types where
 
 import Data.Aeson
 import Data.Text (Text)
@@ -77,8 +77,7 @@ instance FromJSON EthResult where
             topics = topics
         })
 
-class EthEvent a where
-  matchesSubscription :: a -> EthSubscription -> Bool
-  
-class TweetableEvent a where
-  toTweet :: a -> EthSubscription -> Text
+data TweetableEthEvent = TweetableEthEvent {
+    matches :: EthSubscription -> Bool,
+    asTweet :: EthSubscription -> Text
+}

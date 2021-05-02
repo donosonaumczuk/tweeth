@@ -3,17 +3,26 @@
 module EthFormatUtils where
 
 import           Data.Char (isAsciiUpper, isAsciiLower)
-import           Data.Text               (Text)
-import qualified Data.Text                as T
+import           Data.Text (Text)
+import qualified Data.Text as T
+
+addressLengthExceptHexPrefix :: Int
+addressLengthExceptHexPrefix = 26
+
+hexPrefix :: String
+hexPrefix = "0x"
+
+hexPrefixLength :: Int
+hexPrefixLength = 2
 
 formatTextTopicAsEthAddress :: Text -> Text
-formatTextTopicAsEthAddress text = T.append (T.pack "0x") (T.drop 26 text)
+formatTextTopicAsEthAddress text = T.append (T.pack hexPrefix) (T.drop addressLengthExceptHexPrefix text)
 
 formatTextTopicAsEthAddressStr :: Text -> String
-formatTextTopicAsEthAddressStr text =  "0x" ++ drop  26 (T.unpack text)
+formatTextTopicAsEthAddressStr text =  hexPrefix ++ drop addressLengthExceptHexPrefix (T.unpack text)
 
 formatTxDataAsAmount :: Int -> Text -> String
-formatTxDataAsAmount dec txData = formatAmount dec (show (hexStringToInteger (txDataWithout0x txData)))
+formatTxDataAsAmount dec txData = formatAmount dec (show (hexStringToInteger (txDataWithoutHexPrefix txData)))
 
 formatAmount :: Int -> String -> String
 formatAmount dec str = (\dec'' str'' -> format dec'' str'' (length str'')) dec (appendZerosToReachDecimals dec str)
@@ -24,8 +33,8 @@ appendZerosToReachDecimals dec str =
     if length str > dec then str
     else appendZerosToReachDecimals dec ("0" ++ str)
 
-txDataWithout0x :: Text -> String
-txDataWithout0x txData = drop 2 (T.unpack txData)
+txDataWithoutHexPrefix :: Text -> String
+txDataWithoutHexPrefix txData = drop hexPrefixLength (T.unpack txData)
 
 hexStringToInteger :: String -> Integer
 hexStringToInteger [] = 0
