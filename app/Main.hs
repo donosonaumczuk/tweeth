@@ -5,10 +5,7 @@ module Main
     ) where
 
 import           Control.Monad              (forever)
-import           Data.Aeson                 (decode, FromJSON)
-import           Data.ByteString.Builder    (toLazyByteString)
 import           Data.Text                  (Text)
-import           Data.Text.Encoding         (encodeUtf8Builder)
 import           Eth.Types
 import           Network.Socket             (withSocketsDo)
 import           System.Environment         (getEnv)
@@ -49,20 +46,10 @@ tweetEveryEthEventReceivedFromWs connection = do
     putStrLn ("\n\n-- Websocket data:\n" ++ show wsData)
     postTweet (wsDataToTweet wsData)
 
-decodeJson :: FromJSON a => Text -> Maybe a
-decodeJson = decode . toLazyByteString . encodeUtf8Builder
-
 wsDataToTweet :: Text -> Maybe Text
 wsDataToTweet text = do
-    ethSubResponse <- decodeJson text :: Maybe EthSubscription
-    event <- findEvent events ethSubResponse
-    return $ asTweet event ethSubResponse
-
-findEvent :: [TweetableEthEvent] -> EthSubscription -> Maybe TweetableEthEvent
-findEvent [] _ = Nothing
-findEvent (x:xs) sub = if matches x sub
-                          then return x
-                       else findEvent xs sub
+    ethSubResponse <- fromJsonText text
+    findEventAndMapAsTw events ethSubResponse
 
 postTweet :: Maybe Text -> IO ()
 postTweet (Just tweet) = do
