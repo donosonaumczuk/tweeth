@@ -6,8 +6,8 @@ import           Data.Char    (isAsciiUpper, isAsciiLower)
 import           Data.Text    (Text)
 import qualified Data.Text as T
 
-addressLengthExceptHexPrefix :: Int
-addressLengthExceptHexPrefix = 26
+topicAsAddressExceedingAppendedChars :: Int
+topicAsAddressExceedingAppendedChars = 26
 
 hexPrefix :: String
 hexPrefix = "0x"
@@ -16,10 +16,10 @@ hexPrefixLength :: Int
 hexPrefixLength = 2
 
 formatTextTopicAsEthAddress :: Text -> Text
-formatTextTopicAsEthAddress text = T.append (T.pack hexPrefix) (T.drop addressLengthExceptHexPrefix text)
+formatTextTopicAsEthAddress text = T.append (T.pack hexPrefix) (T.drop topicAsAddressExceedingAppendedChars text)
 
 formatTextTopicAsEthAddressStr :: Text -> String
-formatTextTopicAsEthAddressStr text =  hexPrefix ++ drop addressLengthExceptHexPrefix (T.unpack text)
+formatTextTopicAsEthAddressStr text =  hexPrefix ++ drop topicAsAddressExceedingAppendedChars (T.unpack text)
 
 formatTxDataAsAmount :: Int -> Text -> String
 formatTxDataAsAmount dec txData = formatAmount dec (show (hexStringToInteger (txDataWithoutHexPrefix txData)))
