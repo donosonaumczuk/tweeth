@@ -4,7 +4,7 @@
 
 -- [Note] This file was extracted from official twitter-conduit samples
 -- https://github.com/himura/twitter-conduit/blob/c26a85c5201f6b0d9745ec5a88c8a21084693ae7/sample/common/Common.hs
-module TwitterUtils where
+module Twitter.Utils.Auth where
 
 import           Web.Twitter.Conduit
 import           Control.Applicative

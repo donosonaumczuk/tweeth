@@ -2,10 +2,10 @@
 
 module Eth.Events.ProofOfHumanity where
   
-import           Data.Text      (Text)
+import           Data.Text        (Text)
 import           Eth.Types
-import qualified Data.Text      as T
-import qualified EthFormatUtils as F
+import qualified Data.Text        as T
+import qualified Eth.Utils.Format as F
 
 addSubmission :: TweetableEthEvent
 addSubmission = TweetableEthEvent {

@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module EthFormatUtils where
+module Eth.Utils.Format where
 
 import           Data.Char    (isAsciiUpper, isAsciiLower)
 import           Data.Text    (Text)
