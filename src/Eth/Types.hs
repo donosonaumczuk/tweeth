@@ -5,10 +5,9 @@
 module Eth.Types where
 
 import Data.Aeson
-import Data.Text    (Text)
-import           Data.Text.Encoding         (encodeUtf8Builder)
-import           Data.ByteString.Builder    (toLazyByteString)
-import           Data.Aeson                 (decode, FromJSON)
+import Data.ByteString.Builder (toLazyByteString)
+import Data.Text               (Text)
+import Data.Text.Encoding      (encodeUtf8Builder)
 import GHC.Generics
 
 data EthSubscription = EthSubscription {
@@ -93,4 +92,6 @@ findEventAndMapAsTw = findAndMapEvent asTweet
 
 findAndMapEvent :: (TweetableEthEvent -> EthSubscription -> a) -> [TweetableEthEvent] -> EthSubscription -> Maybe a
 findAndMapEvent _ [] _ = Nothing
-findAndMapEvent f (x:xs) sub = if matches x sub then return (f x sub) else findAndMapEvent f xs sub
+findAndMapEvent f (x:xs) sub = if matches x sub 
+                                  then return $ f x sub
+                               else findAndMapEvent f xs sub
