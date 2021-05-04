@@ -15,12 +15,12 @@ data EthSubscription = EthSubscription {
     jsonrpc :: Text,
     method  :: Text,
     params  :: EthParams
-} deriving (Show, Generic, ToJSON, FromJSON)
+} deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data EthParams = EthParams {
     subscription :: Text,
     result       :: EthResult
-} deriving (Show, Generic, ToJSON, FromJSON)
+} deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data EthResult = EthResult {
     removed          :: Bool,
@@ -32,7 +32,7 @@ data EthResult = EthResult {
     address          :: Text,
     resultData       :: Text,
     topics           :: [Text]
-} deriving (Show)
+} deriving (Show, Eq)
 
 instance ToJSON EthResult where
     toJSON EthResult {
