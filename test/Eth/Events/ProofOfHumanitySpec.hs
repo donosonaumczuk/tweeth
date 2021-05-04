@@ -16,7 +16,7 @@ pohAddSubmission = EthSubscription "2.0" "eth_subscription" (EthParams "0x1feed3
      "0x000000000000000000000000bbeb5e0adc0818ac8677b2f78387a8a2e22e8d16"]))
 
 subscriptionWithoutAddSubmissionTopic :: EthSubscription
-subscriptionWithoutAddSubmissionTopic = EthSubscription "2.0" "eth_subscription" 
+subscriptionWithoutAddSubmissionTopic = EthSubscription "2.0" "eth_subscription"
     (EthParams "0x1feed340b3559156f7e39013b6a1edd"
     (EthResult False "0x134" "0x77" "0xc1014379a142881a1859f0faa7bd5ea5c9396b65f19c8746c055f0b7c3f693e7"
     "0xd2eb6976b405c2c25f0f849858e5f89629a29f0816d73dfd391d5c891a10468b" "0xbca937"
@@ -42,8 +42,8 @@ spec = do
     it "given subscription without poh contract address when calling matches on addSubmission then return false" $ do
       subscriptionWithoutPohAddress `shouldNotSatisfy` matches PohEvents.addSubmission
     it "given valid poh addSubmission subscription when calling asTweet on addSubmission then return expected text" $ do
-      expectedPohAddSubTweet <- T.readFile "test/Files/Eth/Events/ProofOfHumanity/expectedAddSubmissionTweet.txt"
-      asTweet PohEvents.addSubmission pohAddSubmission `shouldBe` expectedPohAddSubTweet
+      expectedTweet <- T.readFile "test/Files/Eth/Events/ProofOfHumanity/expectedAddSubmissionTweet.txt"
+      asTweet PohEvents.addSubmission pohAddSubmission `shouldBe` expectedTweet
 
 main :: IO ()
 main = hspec spec
