@@ -5,7 +5,6 @@ module Eth.TypesSpec (main, spec) where
 import           Eth.Types
 import           Test.Hspec
 import qualified Data.Text.IO as T
-import Data.Aeson.Types (ToJSON)
 
 expectedSubscription :: EthSubscription
 expectedSubscription = EthSubscription "2.0" "eth_subscription" (EthParams "0x1feed340995274b5a3f497fb491dcb4e"
