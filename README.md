@@ -44,3 +44,15 @@ stack build
 ```
 stack exec tweeth-exe
 ```
+
+## Tests
+
+```
+stack test
+```
+
+You can run tests and obtain a coverage report using the following command: 
+
+```
+stack test --coverage
+```
