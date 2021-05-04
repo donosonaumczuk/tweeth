@@ -56,3 +56,5 @@ You can run tests and obtain a coverage report using the following command:
 ```
 stack test --coverage
 ```
+![image](https://user-images.githubusercontent.com/23125060/116967561-f1f7a300-ac88-11eb-9270-290582287fea.png)
+
