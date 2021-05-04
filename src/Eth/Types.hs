@@ -88,14 +88,14 @@ data TweetableEthEvent = TweetableEthEvent {
 fromJsonText :: Text -> Maybe EthSubscription
 fromJsonText = decode . toLazyByteString . encodeUtf8Builder
 
-findAndMapEvent :: (TweetableEthEvent -> EthSubscription -> Bool) 
+findAndMapEvent :: (TweetableEthEvent -> EthSubscription -> Bool)
                 -> (TweetableEthEvent -> EthSubscription -> a)
-                -> [TweetableEthEvent] 
+                -> [TweetableEthEvent]
                 -> EthSubscription
                 -> Maybe a
 findAndMapEvent predicate mapper events sub = do
     matchingEvent <- find (`predicate` sub) events
     return $ mapper matchingEvent sub
 
-findAndMapAsTweet :: [TweetableEthEvent] -> EthSubscription -> Maybe Text
-findAndMapAsTweet = findAndMapEvent matches asTweet
+findAndMapEventAsTweet :: [TweetableEthEvent] -> EthSubscription -> Maybe Text
+findAndMapEventAsTweet = findAndMapEvent matches asTweet
