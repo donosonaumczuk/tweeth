@@ -6,6 +6,7 @@ module Eth.Types where
 
 import Data.Aeson
 import Data.ByteString.Builder (toLazyByteString)
+import Data.List               (find)
 import Data.Text               (Text)
 import Data.Text.Encoding      (encodeUtf8Builder)
 import GHC.Generics
@@ -14,12 +15,12 @@ data EthSubscription = EthSubscription {
     jsonrpc :: Text,
     method  :: Text,
     params  :: EthParams
-} deriving (Show, Generic, ToJSON, FromJSON)
+} deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data EthParams = EthParams {
     subscription :: Text,
     result       :: EthResult
-} deriving (Show, Generic, ToJSON, FromJSON)
+} deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data EthResult = EthResult {
     removed          :: Bool,
@@ -31,7 +32,7 @@ data EthResult = EthResult {
     address          :: Text,
     resultData       :: Text,
     topics           :: [Text]
-} deriving (Show)
+} deriving (Show, Eq)
 
 instance ToJSON EthResult where
     toJSON EthResult {
@@ -87,11 +88,14 @@ data TweetableEthEvent = TweetableEthEvent {
 fromJsonText :: Text -> Maybe EthSubscription
 fromJsonText = decode . toLazyByteString . encodeUtf8Builder
 
-findEventAndMapAsTw :: [TweetableEthEvent] -> EthSubscription -> Maybe Text
-findEventAndMapAsTw = findAndMapEvent asTweet
+findAndMapEvent :: (TweetableEthEvent -> EthSubscription -> Bool)
+                -> (TweetableEthEvent -> EthSubscription -> a)
+                -> [TweetableEthEvent]
+                -> EthSubscription
+                -> Maybe a
+findAndMapEvent predicate mapper events sub = do
+    matchingEvent <- find (`predicate` sub) events
+    return $ mapper matchingEvent sub
 
-findAndMapEvent :: (TweetableEthEvent -> EthSubscription -> a) -> [TweetableEthEvent] -> EthSubscription -> Maybe a
-findAndMapEvent _ [] _ = Nothing
-findAndMapEvent f (x:xs) sub = if matches x sub 
-                                  then return $ f x sub
-                               else findAndMapEvent f xs sub
+findAndMapEventAsTweet :: [TweetableEthEvent] -> EthSubscription -> Maybe Text
+findAndMapEventAsTweet = findAndMapEvent matches asTweet
