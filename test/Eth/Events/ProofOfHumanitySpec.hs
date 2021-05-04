@@ -34,7 +34,7 @@ subscriptionWithoutPohAddress = EthSubscription "2.0" "eth_subscription" (EthPar
 
 spec :: Spec
 spec = do
-  describe "Eth.Events.Dai tests" $ do
+  describe "Eth.Events.ProofOfHumanity tests" $ do
     it "given poh addSubmission subscription when calling matches on addSubmission then return true" $ do
       pohAddSubmission `shouldSatisfy` matches PohEvents.addSubmission
     it "given poh subscription without addSubmission topic when calling matches on addSubmission then return false" $ do

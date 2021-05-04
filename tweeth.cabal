@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2fc808c73e88443ff49930d81e9b2dc819761fa1d0371d618735c41b0f39cdc8
+-- hash: 83d22bed6e611691adb7b5e9b06b6fab744ffcf5aa26970b699e213d5965bc40
 
 name:           tweeth
 version:        0.1.0.0
@@ -88,6 +88,7 @@ test-suite tweeth-test
   other-modules:
       Eth.Events.DaiSpec
       Eth.Events.ProofOfHumanitySpec
+      Eth.Utils.FormatSpec
       Paths_tweeth
   hs-source-dirs:
       test
