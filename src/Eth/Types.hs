@@ -6,6 +6,7 @@ module Eth.Types where
 
 import Data.Aeson
 import Data.ByteString.Builder (toLazyByteString)
+import Data.List               (find)
 import Data.Text               (Text)
 import Data.Text.Encoding      (encodeUtf8Builder)
 import GHC.Generics
@@ -87,11 +88,14 @@ data TweetableEthEvent = TweetableEthEvent {
 fromJsonText :: Text -> Maybe EthSubscription
 fromJsonText = decode . toLazyByteString . encodeUtf8Builder
 
-findEventAndMapAsTw :: [TweetableEthEvent] -> EthSubscription -> Maybe Text
-findEventAndMapAsTw = findAndMapEvent asTweet
+findAndMapEvent :: (TweetableEthEvent -> EthSubscription -> Bool) 
+                -> (TweetableEthEvent -> EthSubscription -> a)
+                -> [TweetableEthEvent] 
+                -> EthSubscription
+                -> Maybe a
+findAndMapEvent predicate mapper events sub = do
+    matchingEvent <- find (`predicate` sub) events
+    return $ mapper matchingEvent sub
 
-findAndMapEvent :: (TweetableEthEvent -> EthSubscription -> a) -> [TweetableEthEvent] -> EthSubscription -> Maybe a
-findAndMapEvent _ [] _ = Nothing
-findAndMapEvent f (x:xs) sub = if matches x sub 
-                                  then return $ f x sub
-                               else findAndMapEvent f xs sub
+findAndMapAsTweet :: [TweetableEthEvent] -> EthSubscription -> Maybe Text
+findAndMapAsTweet = findAndMapEvent matches asTweet

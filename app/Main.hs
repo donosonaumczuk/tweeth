@@ -49,7 +49,7 @@ tweetEveryEthEventReceivedFromWs connection = do
 wsDataToTweet :: Text -> Maybe Text
 wsDataToTweet text = do
     ethSubResponse <- fromJsonText text
-    findEventAndMapAsTw events ethSubResponse
+    findAndMapAsTweet events ethSubResponse
 
 postTweet :: Maybe Text -> IO ()
 postTweet (Just tweet) = do
