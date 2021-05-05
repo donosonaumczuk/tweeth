@@ -59,22 +59,22 @@ spec = do
       findAndMapEventAsTweet [neverMatchingEvent] ethSubscription `shouldBe` Nothing
     it "given sub and empty list of events when calling findAndMapEventAsTweet then return nothing" $ do
       findAndMapEventAsTweet [] ethSubscription `shouldBe` Nothing
-    it "field to field comparisson" $ do
+    it "given subscription when calling every field then must return the expected values for each one" $ do
       jsonrpc ethSubscription `shouldBe` "2.0"
       method ethSubscription `shouldBe` "eth_subscription"
       (subscription . params) ethSubscription `shouldBe` "0x1feed340995274b5a3f497fb491dcb4e"
-      (removed . (result . params)) ethSubscription `shouldBe` False 
-      (logIndex . (result . params)) ethSubscription `shouldBe` "0x5d" 
-      (transactionIndex . (result . params)) ethSubscription `shouldBe` "0x27" 
-      (transactionHash . (result . params)) ethSubscription `shouldBe` 
-        "0x2ecd88a2c0ed09d136f175f9843f78c8532de065001be03ed18bf9e4d550d553" 
-      (blockHash . (result . params)) ethSubscription `shouldBe` 
-        "0x5d8fd3ad85a97b941f3e1f50bb54075d1b18644824a50d39039ebd78b87598fb" 
-      (blockNumber . (result . params)) ethSubscription `shouldBe` "0xbbe061" 
-      (address . (result . params)) ethSubscription `shouldBe` "0x6B175474E89094C44Da98b954EedeAC495271d0F" 
-      (resultData . (result . params)) ethSubscription `shouldBe` 
-        "0x00000000000000000000000000000000000000000000005426c02c9b218f5071" 
-      (topics . (result . params)) ethSubscription `shouldBe` 
+      (removed . (result . params)) ethSubscription `shouldBe` False
+      (logIndex . (result . params)) ethSubscription `shouldBe` "0x5d"
+      (transactionIndex . (result . params)) ethSubscription `shouldBe` "0x27"
+      (transactionHash . (result . params)) ethSubscription `shouldBe`
+        "0x2ecd88a2c0ed09d136f175f9843f78c8532de065001be03ed18bf9e4d550d553"
+      (blockHash . (result . params)) ethSubscription `shouldBe`
+        "0x5d8fd3ad85a97b941f3e1f50bb54075d1b18644824a50d39039ebd78b87598fb"
+      (blockNumber . (result . params)) ethSubscription `shouldBe` "0xbbe061"
+      (address . (result . params)) ethSubscription `shouldBe` "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      (resultData . (result . params)) ethSubscription `shouldBe`
+        "0x00000000000000000000000000000000000000000000005426c02c9b218f5071"
+      (topics . (result . params)) ethSubscription `shouldBe`
         [ "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
           "0x0000000000000000000000007515be43d16f871588adc135d58a9c30a71eb34f",
           "0x0000000000000000000000002ad95483ac838e2884563ad278e933fba96bc242" ]
