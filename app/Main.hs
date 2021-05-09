@@ -44,7 +44,7 @@ tweetEveryEthEventReceivedFromWs connection = do
     putStrLn "\n\n---------------------------------------"
     wsData <- WS.receiveData connection
     putStrLn ("\n\n-- Websocket data:\n" ++ show wsData)
-    postTweet (wsDataToTweet wsData)
+    postTweet . wsDataToTweet $ wsData
 
 wsDataToTweet :: Text -> Maybe Text
 wsDataToTweet text = do
